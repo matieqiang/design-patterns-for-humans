@@ -223,233 +223,211 @@ public class FactoryExample {
 ----------------
 
 Real world example
-> Extending our door example from Simple Factory. Based on your needs you might get a wooden door from a wooden door shop, iron door from an iron shop or a PVC door from the relevant shop. Plus you might need a guy with different kind of specialities to fit the door, for example a carpenter for wooden door, welder for iron door etc. As you can see there is a dependency between the doors now, wooden door needs carpenter, iron door needs a welder etc.
+> 从简单工厂扩展我们的门示例。根据您的需要，您可能会从木门店购买木门，从铁店购买铁门或从相关商店购买 PVC 门。
+> 另外，您可能需要一个具有不同专业知识的人来安装门，例如木门的木匠，铁门的焊工等。正如您所看到的现在门之间存在依赖关系，木门需要木匠，铁门需要焊工等
 
 In plain words
-> A factory of factories; a factory that groups the individual but related/dependent factories together without specifying their concrete classes.
+> 工厂的工厂，将单个但相关或依赖的工厂组合在一起，而不指定它们的具体类的工厂。
 
 Wikipedia says
-> The abstract factory pattern provides a way to encapsulate a group of individual factories that have a common theme without specifying their concrete classes
+> 抽象工厂模式提供了一种方法来封装一组具有共同主题的独立工厂，而无需指定它们的具体类
 
 **Programmatic Example**
+转换上面的门的例子，首先，我们有Door接口，和一些接口实现。
 
-Translating the door example above. First of all we have our `Door` interface and some implementation for it
-
-```php
-interface Door
-{
-    public function getDescription();
+```java
+public interface Door {
+    void getDescription();
 }
 
-class WoodenDoor implements Door
-{
-    public function getDescription()
-    {
-        echo 'I am a wooden door';
+public class WoodenDoor implements Door{
+    @Override
+    public void getDescription() {
+        System.out.println("I am a wooden door!");
     }
 }
 
-class IronDoor implements Door
-{
-    public function getDescription()
-    {
-        echo 'I am an iron door';
+public class IronDoor implements Door{
+    @Override
+    public void getDescription() {
+        System.out.println("I am a iron door!");
     }
 }
+
 ```
 Then we have some fitting experts for each door type
 
-```php
-interface DoorFittingExpert
-{
-    public function getDescription();
+```java
+public interface DoorFittingExpert {
+    void getDescription();
 }
 
-class Welder implements DoorFittingExpert
-{
-    public function getDescription()
-    {
-        echo 'I can only fit iron doors';
+public class Welder implements DoorFittingExpert{
+    @Override
+    public void getDescription() {
+        System.out.println("I can only fit iron doors !");
     }
 }
 
-class Carpenter implements DoorFittingExpert
-{
-    public function getDescription()
-    {
-        echo 'I can only fit wooden doors';
+public class Carpenter implements DoorFittingExpert{
+    @Override
+    public void getDescription() {
+        System.out.println("I can only fit wooden doors !");
     }
 }
+
 ```
-
-Now we have our abstract factory that would let us make family of related objects i.e. wooden door factory would create a wooden door and wooden door fitting expert and iron door factory would create an iron door and iron door fitting expert
-```php
-interface DoorFactory
-{
-    public function makeDoor(): Door;
-    public function makeFittingExpert(): DoorFittingExpert;
+现在我们准备抽象工厂，可以让我们创建一组相关对象。
+i.e. 
+木门工厂将创建木门和木匠对象，铁门工厂可以创建铁门和焊接工对象。
+```java
+public interface DoorFactory {
+    Door makeDoor();
+    DoorFittingExpert makeFittingExpert();
 }
 
 // Wooden factory to return carpenter and wooden door
-class WoodenDoorFactory implements DoorFactory
-{
-    public function makeDoor(): Door
-    {
+public class WoodenDoorFactory implements DoorFactory{
+    @Override
+    public Door makeDoor() {
         return new WoodenDoor();
     }
 
-    public function makeFittingExpert(): DoorFittingExpert
-    {
+    @Override
+    public DoorFittingExpert makeFittingExpert() {
         return new Carpenter();
     }
 }
 
 // Iron door factory to get iron door and the relevant fitting expert
-class IronDoorFactory implements DoorFactory
-{
-    public function makeDoor(): Door
-    {
+public class IronDoorFactory implements DoorFactory{
+    @Override
+    public Door makeDoor() {
         return new IronDoor();
     }
 
-    public function makeFittingExpert(): DoorFittingExpert
-    {
+    @Override
+    public DoorFittingExpert makeFittingExpert() {
         return new Welder();
     }
 }
 ```
 And then it can be used as
-```php
-$woodenFactory = new WoodenDoorFactory();
+```java
+public class AbstractFactoryExample {
+    public static void main(String[] args) {
+        WoodenDoorFactory woodenDoorFactory = new WoodenDoorFactory();
+        Door woodenDoor = woodenDoorFactory.makeDoor();
+        woodenDoor.getDescription();
+        DoorFittingExpert carpenter = woodenDoorFactory.makeFittingExpert();
+        carpenter.getDescription();
 
-$door = $woodenFactory->makeDoor();
-$expert = $woodenFactory->makeFittingExpert();
-
-$door->getDescription();  // Output: I am a wooden door
-$expert->getDescription(); // Output: I can only fit wooden doors
-
-// Same for Iron Factory
-$ironFactory = new IronDoorFactory();
-
-$door = $ironFactory->makeDoor();
-$expert = $ironFactory->makeFittingExpert();
-
-$door->getDescription();  // Output: I am an iron door
-$expert->getDescription(); // Output: I can only fit iron doors
+        IronDoorFactory ironDoorFactory = new IronDoorFactory();
+        Door ironDoor = ironDoorFactory.makeDoor();
+        ironDoor.getDescription();
+        DoorFittingExpert welder = ironDoorFactory.makeFittingExpert();
+        welder.getDescription();
+    }
+}
 ```
-
-As you can see the wooden door factory has encapsulated the `carpenter` and the `wooden door` also iron door factory has encapsulated the `iron door` and `welder`. And thus it had helped us make sure that for each of the created door, we do not get a wrong fitting expert.   
+如您所见，木门厂封装了carpenter和wooden door，铁门厂也封装了iron door和welder。因此，它帮助我们确保对于每个创建的门，我们都不会弄错装配专家。
 
 **When to use?**
-
-When there are interrelated dependencies with not-that-simple creation logic involved
+当有一个创建逻辑没那么简单的相关依赖时。
 
 👷 Builder
 --------------------------------------------
 Real world example
-> Imagine you are at Hardee's and you order a specific deal, lets say, "Big Hardee" and they hand it over to you without *any questions*; this is the example of simple factory. But there are cases when the creation logic might involve more steps. For example you want a customized Subway deal, you have several options in how your burger is made e.g what bread do you want? what types of sauces would you like? What cheese would you want? etc. In such cases builder pattern comes to the rescue.
+> 在某些情况下，创建逻辑可能涉及更多步骤。例如，您想要一个定制的赛百味交易，您在制作汉堡时有多种选择，例如您想要什么面包？你想要什么类型的酱汁？你想要什么奶酪？等等。在这种情况下，建造者模式可以提供帮助。
 
 In plain words
-> Allows you to create different flavors of an object while avoiding constructor pollution. Useful when there could be several flavors of an object. Or when there are a lot of steps involved in creation of an object.
+> 允许您创建对象的不同风格，同时避免构造函数污染。当一个对象可能有多种风格时很有用。或者当创建对象涉及很多步骤时。
 
 Wikipedia says
-> The builder pattern is an object creation software design pattern with the intentions of finding a solution to the telescoping constructor anti-pattern.
+> 创建者模式是一个对象创建的软件设计模式，意图找到一种解决伸缩构造器反模式的方法。
 
-Having said that let me add a bit about what telescoping constructor anti-pattern is. At one point or the other we have all seen a constructor like below:
+话虽如此，让我补充一点关于什么是伸缩构造函数反模式。在某一时刻，我们都见过如下构造函数：
 
-```php
-public function __construct($size, $cheese = true, $pepperoni = true, $tomato = false, $lettuce = true)
-{
+```java
+public Burger(int size, boolean cheese, boolean pepperoni, boolean lettuce, boolean tomato) {
+    this.size = size;
+    this.cheese = cheese;
+    this.pepperoni = pepperoni;
+    this.lettuce = lettuce;
+    this.tomato = tomato;
 }
 ```
-
-As you can see; the number of constructor parameters can quickly get out of hand and it might become difficult to understand the arrangement of parameters. Plus this parameter list could keep on growing if you would want to add more options in future. This is called telescoping constructor anti-pattern.
-
+如你看到的; 构造函数参数的数量很快就会失控，并且可能难以理解参数的排列。另外，如果您将来想添加更多选项，此参数列表可能会继续增长。这称为伸缩构造函数反模式。
 **Programmatic Example**
 
-The sane alternative is to use the builder pattern. First of all we have our burger that we want to make
+明智的选择是使用构建器模式。首先我们有我们想做的汉堡
 
-```php
-class Burger
-{
-    protected $size;
+```java
+public class Burger {
+    protected int size;
+    protected boolean cheese;
+    protected boolean pepperoni;
+    protected boolean lettuce;
+    protected boolean tomato;
 
-    protected $cheese = false;
-    protected $pepperoni = false;
-    protected $lettuce = false;
-    protected $tomato = false;
-
-    public function __construct(BurgerBuilder $builder)
-    {
-        $this->size = $builder->size;
-        $this->cheese = $builder->cheese;
-        $this->pepperoni = $builder->pepperoni;
-        $this->lettuce = $builder->lettuce;
-        $this->tomato = $builder->tomato;
+    public Burger(BurgerBuilder builder) {
+        this.size = builder.size;
+        this.cheese = builder.cheese;
+        this.pepperoni = builder.pepperoni;
+        this.lettuce = builder.lettuce;
+        this.tomato = builder.tomato;
     }
 }
 ```
 
 And then we have the builder
 
-```php
-class BurgerBuilder
-{
-    public $size;
+```java
+public class BurgerBuilder {
+    public int size;
+    public boolean cheese;
+    public boolean pepperoni;
+    public boolean lettuce;
+    public boolean tomato;
 
-    public $cheese = false;
-    public $pepperoni = false;
-    public $lettuce = false;
-    public $tomato = false;
-
-    public function __construct(int $size)
-    {
-        $this->size = $size;
+    public BurgerBuilder(int size) {
+        this.size = size;
     }
 
-    public function addPepperoni()
-    {
-        $this->pepperoni = true;
-        return $this;
+    public BurgerBuilder addPepperoni() {
+        this.pepperoni = true;
+        return this;
     }
 
-    public function addLettuce()
-    {
-        $this->lettuce = true;
-        return $this;
+    public BurgerBuilder addLettuce() {
+        this.lettuce = true;
+        return this;
     }
 
-    public function addCheese()
-    {
-        $this->cheese = true;
-        return $this;
+    public BurgerBuilder addCheese() {
+        this.cheese = true;
+        return this;
     }
 
-    public function addTomato()
-    {
-        $this->tomato = true;
-        return $this;
+    public BurgerBuilder addTomato() {
+        this.tomato = true;
+        return this;
     }
 
-    public function build(): Burger
-    {
-        return new Burger($this);
+    public Burger builder(){
+        return new Burger(this);
     }
 }
 ```
 And then it can be used as:
 
-```php
-$burger = (new BurgerBuilder(14))
-                    ->addPepperoni()
-                    ->addLettuce()
-                    ->addTomato()
-                    ->build();
+```java
+Burger burger = new BurgerBuilder(10).addCheese().addLettuce().addPepperoni().addTomato().builder();
 ```
 
 **When to use?**
 
-When there could be several flavors of an object and to avoid the constructor telescoping. The key difference from the factory pattern is that; factory pattern is to be used when the creation is a one step process while builder pattern is to be used when the creation is a multi step process.
+当一个对象可能有多种风格并避免构造函数伸缩时。与工厂模式的主要区别在于：当创建是一个步骤过程时，将使用工厂模式，而当创建是多步骤过程时，将使用构建器模式。
 
 🐑 Prototype
 ------------
