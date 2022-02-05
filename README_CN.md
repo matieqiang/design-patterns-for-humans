@@ -569,10 +569,10 @@ public class SingletonSample {
 Structural Design Patterns
 ==========================
 In plain words
-> Structural patterns are mostly concerned with object composition or in other words how the entities can use each other. Or yet another explanation would be, they help in answering "How to build a software component?"
+> 结构模式主要涉及对象组成，或者换句话说，实体如何相互使用。或者另一种解释是，它们有助于回答“如何构建软件组件？”
 
 Wikipedia says
-> In software engineering, structural design patterns are design patterns that ease the design by identifying a simple way to realize relationships between entities.
+> 在软件工程中，结构设计模式是通过识别实现实体之间关系的简单方法来简化设计的设计模式。
 
  * [Adapter](#-adapter)
  * [Bridge](#-bridge)
@@ -585,88 +585,93 @@ Wikipedia says
 🔌 Adapter
 -------
 Real world example
-> Consider that you have some pictures in your memory card and you need to transfer them to your computer. In order to transfer them you need some kind of adapter that is compatible with your computer ports so that you can attach memory card to your computer. In this case card reader is an adapter.
-> Another example would be the famous power adapter; a three legged plug can't be connected to a two pronged outlet, it needs to use a power adapter that makes it compatible with the two pronged outlet.
-> Yet another example would be a translator translating words spoken by one person to another
+> 考虑一下这个场景，您的存储卡中有一些照片，需要将它们传输到计算机上。为了传输它们，您需要某种与您的计算机端口兼容的适配器，以便您可以将存储卡连接到您的计算机。在这种情况下，读卡器是适配器。
+> 另一个例子是著名的电源适配器; 三脚插头不能连接到双管插座，需要使用电源适配器，使其与双叉插座兼容。
+> 还有一个例子是翻译人员将一个人所说的话翻译成另一个人
 
 In plain words
-> Adapter pattern lets you wrap an otherwise incompatible object in an adapter to make it compatible with another class.
+> 适配器模式允许您在适配器中包装其他不兼容的对象，以使其与另一个类兼容。
 
 Wikipedia says
-> In software engineering, the adapter pattern is a software design pattern that allows the interface of an existing class to be used as another interface. It is often used to make existing classes work with others without modifying their source code.
+> 在软件工程中，适配器模式是一种软件设计模式，它允许将现有类的接口用作另一个接口。它通常用于使现有类与其他类一起工作而无需修改其源代码。
 
 **Programmatic Example**
 
-Consider a game where there is a hunter and he hunts lions.
+考虑一下猎人猎杀狮子的场景。
+首先有一个Lion接口，所有狮子必须实现这个接口。
 
-First we have an interface `Lion` that all types of lions have to implement
-
-```php
-interface Lion
-{
-    public function roar();
+```java
+public interface Lion {
+    void roar();
 }
 
-class AfricanLion implements Lion
-{
-    public function roar()
-    {
+public class AfricanLion implements Lion{
+    @Override
+    public void roar() {
+        System.out.println("ao ~");
     }
 }
 
-class AsianLion implements Lion
-{
-    public function roar()
-    {
+public class AsianLion implements Lion{
+    @Override
+    public void roar() {
+        System.out.println("ao ~ ao ~");
+    }
+}
+
+```
+猎人能狗追踪任何实现Lion接口的狮子
+
+```java
+public class Hunter {
+    public void hunt(Lion lion) {
+        lion.roar();
     }
 }
 ```
-And hunter expects any implementation of `Lion` interface to hunt.
-```php
-class Hunter
-{
-    public function hunt(Lion $lion)
-    {
-        $lion->roar();
-    }
-}
-```
+现在我们添加一个野狗（WildDog），让猎人也可以追踪它。
+但是，我们不能直接追踪它，因为野狗有一个不同的接口，为了兼容我们的猎人，我们将创建一个兼容的适配器。
 
-Now let's say we have to add a `WildDog` in our game so that hunter can hunt that also. But we can't do that directly because dog has a different interface. To make it compatible for our hunter, we will have to create an adapter that is compatible
-
-```php
+```java
 // This needs to be added to the game
-class WildDog
-{
-    public function bark()
-    {
+public class WildDog {
+    public void bark() {
+        System.out.println("wang wang wang ~");
     }
 }
 
 // Adapter around wild dog to make it compatible with our game
-class WildDogAdapter implements Lion
-{
-    protected $dog;
+public class WildDogAdapter implements Lion{
+    protected WildDog dog;
 
-    public function __construct(WildDog $dog)
-    {
-        $this->dog = $dog;
+    public WildDogAdapter(WildDog dog) {
+        this.dog = dog;
     }
 
-    public function roar()
-    {
-        $this->dog->bark();
+    @Override
+    public void roar() {
+        dog.bark();
     }
 }
 ```
-And now the `WildDog` can be used in our game using `WildDogAdapter`.
+现在野狗可以通过WildDogAdapter也可以在这个游戏中被使用。
 
-```php
-$wildDog = new WildDog();
-$wildDogAdapter = new WildDogAdapter($wildDog);
+```java
+public class AdapterSample {
+    public static void main(String[] args) {
+        Hunter hunter = new Hunter();
 
-$hunter = new Hunter();
-$hunter->hunt($wildDogAdapter);
+        AfricanLion africanLion = new AfricanLion();
+        AsianLion asianLion = new AsianLion();
+        hunter.hunt(africanLion);
+        hunter.hunt(asianLion);
+
+        WildDog wildDog = new WildDog();
+        WildDogAdapter wildDogAdapter = new WildDogAdapter(wildDog);
+        hunter.hunt(wildDogAdapter);
+
+    }
+}
 ```
 
 🚡 Bridge
