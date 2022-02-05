@@ -74,7 +74,7 @@ Wikipedia says
 
 **Programmatic Example**
 
-First of all we have a door interface and the implementation
+First all we have a door interface and the implementation
 ```java
 public interface Door {
     float getWidth();
@@ -432,124 +432,138 @@ Burger burger = new BurgerBuilder(10).addCheese().addLettuce().addPepperoni().ad
 🐑 Prototype
 ------------
 Real world example
-> Remember dolly? The sheep that was cloned! Lets not get into the details but the key point here is that it is all about cloning
+> 记得多莉吗，那只克隆羊，详细情况咱们不用说了，但这里的关键点是，这一切都与克隆有关
 
 In plain words
-> Create object based on an existing object through cloning.
+> 基于一个已经存在的对象通过clone方法创建一个新对象。
 
 Wikipedia says
-> The prototype pattern is a creational design pattern in software development. It is used when the type of objects to create is determined by a prototypical instance, which is cloned to produce new objects.
 
-In short, it allows you to create a copy of an existing object and modify it to your needs, instead of going through the trouble of creating an object from scratch and setting it up.
+> 原型模式是软件开发中的一种创造型设计模式。 当要创建的对象的类型由一个原型实例决定时，它被用来克隆以产生新的对象。
+
+简而言之，它允许你创建一个现有对象的副本，并根据你的需要对其进行修改，而不是费力地从头创建一个对象并对其进行设置。
 
 **Programmatic Example**
 
-In PHP, it can be easily done using `clone`
+在Java中，原型模式建议用这样的方法实现。首先，创建一个带有克隆对象方法的接口。在这个例子中，Prototype 接口通过它的 copy 方法实现了这一点。
+```java
+public interface Prototype {
+    Object copy();
+}
 
-```php
-class Sheep
-{
-    protected $name;
-    protected $category;
+public abstract class Sheep implements Prototype{
 
-    public function __construct(string $name, string $category = 'Mountain Sheep')
-    {
-        $this->name = $name;
-        $this->category = $category;
+    public Sheep() {
     }
 
-    public function setName(string $name)
-    {
-        $this->name = $name;
+    public Sheep(Sheep source) {
     }
 
-    public function getName()
-    {
-        return $this->name;
+    @Override
+    public abstract Sheep copy();
+}
+
+public class Dolly extends Sheep{
+    private final String dob;
+
+    public Dolly(String dob) {
+        this.dob = dob;
     }
 
-    public function setCategory(string $category)
-    {
-        $this->category = $category;
+    public Dolly(Dolly dolly) {
+        super(dolly);
+        this.dob = dolly.dob;
     }
 
-    public function getCategory()
-    {
-        return $this->category;
+    @Override
+    public Dolly copy() {
+        return new Dolly(this);
     }
 }
-```
-Then it can be cloned like below
-```php
-$original = new Sheep('Jolly');
-echo $original->getName(); // Jolly
-echo $original->getCategory(); // Mountain Sheep
 
-// Clone and modify what is required
-$cloned = clone $original;
-$cloned->setName('Dolly');
-echo $cloned->getName(); // Dolly
-echo $cloned->getCategory(); // Mountain sheep
+```
+
+为了充分利用原型模式，我们创建了`SheepFactory'和`SheepFactoryImpl'两个类，以便从原型中产生不同种类的生物。
+
+Then it can be cloned like below
+```java
+public class PrototypeExample {
+    public static void main(String[] args) {
+        var dolly = new Dolly(String.valueOf(System.currentTimeMillis()));
+        System.out.println(dolly);
+        var dolly2 = dolly.copy();
+        System.out.println(dolly2);
+    }
+}
 ```
 
 Also you could use the magic method `__clone` to modify the cloning behavior.
 
 **When to use?**
 
-When an object is required that is similar to existing object or when the creation would be expensive as compared to cloning.
+当需要一个与现有对象相似的对象时，或者与克隆相比，创建对象的成本很高时。
 
 💍 Singleton
 ------------
 Real world example
-> There can only be one president of a country at a time. The same president has to be brought to action, whenever duty calls. President here is singleton.
+> 一个国家在一个时期点只有一个总统，无论什么时候呼叫，应答的应该都是统一位总统。这个总统是个唯一的一个。
 
 In plain words
-> Ensures that only one object of a particular class is ever created.
+> 在任何时候都要确保一个特定的类只有一个对象。
 
 Wikipedia says
-> In software engineering, the singleton pattern is a software design pattern that restricts the instantiation of a class to one object. This is useful when exactly one object is needed to coordinate actions across the system.
+> 在软件工程里，单例模式是一个约束一个类只有一个对象的软件设计模式，当只需要一个对象来协调整个系统的操作时，这是非常有用的。
 
-Singleton pattern is actually considered an anti-pattern and overuse of it should be avoided. It is not necessarily bad and could have some valid use-cases but should be used with caution because it introduces a global state in your application and change to it in one place could affect in the other areas and it could become pretty difficult to debug. The other bad thing about them is it makes your code tightly coupled plus mocking the singleton could be difficult.
+单例模式实际上被认为是一种反模式，应该避免过度使用它。 它不一定是坏的，可能有一些有效的用例，但应该谨慎使用，因为它在应用程序中引入了一个全局状态，在一个地方更改它可能会影响到其他地方，并且它可能变得非常难以调试。 它们的另一个缺点是，它使代码紧密耦合，而且模仿单例可能很困难。
 
 **Programmatic Example**
 
-To create a singleton, make the constructor private, disable cloning, disable extension and create a static variable to house the instance
-```php
-final class President
-{
-    private static $instance;
+创建一个单例，将构造器设置为私有，禁用克隆，禁用扩展并创建一个静态变量用来容纳实例。
 
-    private function __construct()
-    {
-        // Hide the constructor
+```java
+public class President {
+    private static President instance;
+    private President() {
     }
-
-    public static function getInstance(): President
-    {
-        if (!self::$instance) {
-            self::$instance = new self();
+    public static President getInstance() {
+        if (instance == null) {
+            instance = new President();
         }
-
-        return self::$instance;
+        return instance;
     }
-
-    private function __clone()
-    {
-        // Disable cloning
+    public static synchronized President synchronizedGetInstance() {
+        if (instance == null) {
+            instance = new President();
+        }
+        return instance;
     }
-
-    private function __wakeup()
-    {
-        // Disable unserialize
+    public static President doubleCheckGetInstance() {
+        if (instance == null) {
+            synchronized (President.class) {
+                if (instance == null) {
+                    instance = new President();
+                }
+            }
+        }
+        return instance;
+    }
+    @Override
+    protected Object clone() {
+        return this;
     }
 }
 ```
 Then in order to use
-```php
-$president1 = President::getInstance();
-$president2 = President::getInstance();
+```java
+public class SingletonSample {
+    public static void main(String[] args) {
+        President p = President.doubleCheckGetInstance();
+        President p2 = President.doubleCheckGetInstance();
+        System.out.println(p.toString());
+        System.out.println(p2.toString());
+    }
+}
 
-var_dump($president1 === $president2); // true
 ```
 
 Structural Design Patterns
