@@ -677,96 +677,90 @@ public class AdapterSample {
 🚡 Bridge
 ------
 Real world example
-> Consider you have a website with different pages and you are supposed to allow the user to change the theme. What would you do? Create multiple copies of each of the pages for each of the themes or would you just create separate theme and load them based on the user's preferences? Bridge pattern allows you to do the second i.e.
+> 考虑您有一个包含不同页面的网站，您应该允许用户更改主题。你会怎么做？为每个主题创建每个页面的多个副本，或者您只是创建单独的主题并根据用户的首选项加载它们？桥模式允许你做第二个 ie
 
 ![With and without the bridge pattern](https://cloud.githubusercontent.com/assets/11269635/23065293/33b7aea0-f515-11e6-983f-98823c9845ee.png)
 
 In Plain Words
-> Bridge pattern is about preferring composition over inheritance. Implementation details are pushed from a hierarchy to another object with a separate hierarchy.
+> 桥接模式更倾向于组合而不是继承。实现细节从一个层次结构推送到另一个具有独立层次结构的对象。
 
 Wikipedia says
-> The bridge pattern is a design pattern used in software engineering that is meant to "decouple an abstraction from its implementation so that the two can vary independently"
+> 桥接模式是软件工程中使用的设计模式，旨在“将抽象与其实现解耦，以便两者可以独立变化”
 
 **Programmatic Example**
 
-Translating our WebPage example from above. Here we have the `WebPage` hierarchy
+转换我们上面这个WebPage的例子。这里我们有“WebPage”层次结构
 
-```php
-interface WebPage
-{
-    public function __construct(Theme $theme);
-    public function getContent();
+```java
+public interface WebPage {
+    String getContent();
 }
 
-class About implements WebPage
-{
-    protected $theme;
+public class About implements WebPage{
+    protected Theme theme;
 
-    public function __construct(Theme $theme)
-    {
-        $this->theme = $theme;
+    public About(Theme theme) {
+        this.theme = theme;
     }
 
-    public function getContent()
-    {
-        return "About page in " . $this->theme->getColor();
+    @Override
+    public String getContent() {
+        return "about page in " + theme.getColor();
     }
 }
 
-class Careers implements WebPage
-{
-    protected $theme;
+public class Careers implements WebPage{
+    protected Theme theme;
 
-    public function __construct(Theme $theme)
-    {
-        $this->theme = $theme;
+    public Careers(Theme theme) {
+        this.theme = theme;
     }
 
-    public function getContent()
-    {
-        return "Careers page in " . $this->theme->getColor();
+    @Override
+    public String getContent() {
+        return "Careers page in " + theme.getColor();
     }
 }
 ```
-And the separate theme hierarchy
-```php
-
-interface Theme
-{
-    public function getColor();
+和独立的"theme"层级结构
+```java
+public interface Theme {
+    String getColor();
 }
 
-class DarkTheme implements Theme
-{
-    public function getColor()
-    {
-        return 'Dark Black';
+public class DarkTheme implements Theme{
+    @Override
+    public String getColor() {
+        return "Dark Black";
     }
 }
-class LightTheme implements Theme
-{
-    public function getColor()
-    {
-        return 'Off white';
+
+public class LightTheme implements Theme{
+    @Override
+    public String getColor() {
+        return "Off white";
     }
 }
-class AquaTheme implements Theme
-{
-    public function getColor()
-    {
-        return 'Light blue';
+
+public class AquaTheme implements Theme{
+    @Override
+    public String getColor() {
+        return "Light green";
     }
 }
 ```
 And both the hierarchies
-```php
-$darkTheme = new DarkTheme();
+```java
+public class BridgeSample {
+    public static void main(String[] args) {
+        DarkTheme darkTheme = new DarkTheme();
+        About aboutPage = new About(darkTheme);
+        Careers careersPage = new Careers(darkTheme);
 
-$about = new About($darkTheme);
-$careers = new Careers($darkTheme);
-
-echo $about->getContent(); // "About page in Dark Black";
-echo $careers->getContent(); // "Careers page in Dark Black";
+        System.out.println(aboutPage.getContent());
+        System.out.println(careersPage.getContent());
+    }
+}
 ```
 
 🌿 Composite
