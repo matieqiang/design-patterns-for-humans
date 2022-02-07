@@ -767,133 +767,123 @@ public class BridgeSample {
 -----------------
 
 Real world example
-> Every organization is composed of employees. Each of the employees has the same features i.e. has a salary, has some responsibilities, may or may not report to someone, may or may not have some subordinates etc.
+> 每个组织都由员工组成。每个员工都有相同的功能，即有工资，有一些责任，可能会或可能不会向某人报告，可能会或可能不会有一些下属等
 
 In plain words
-> Composite pattern lets clients treat the individual objects in a uniform manner.
+> 复合模式允许客户端以统一的方式处理单个对象。 
 
 Wikipedia says
-> In software engineering, the composite pattern is a partitioning design pattern. The composite pattern describes that a group of objects is to be treated in the same way as a single instance of an object. The intent of a composite is to "compose" objects into tree structures to represent part-whole hierarchies. Implementing the composite pattern lets clients treat individual objects and compositions uniformly.
+> 在软件工程中，复合模式是分区设计模式。复合模式描述了一组对象的处理方式与对象的单个实例相同。复合的意图是将对象“组合”成树结构以表示部分整体层次结构。通过实现复合模式，客户可以统一处理单个对象和组合。
 
 **Programmatic Example**
 
-Taking our employees example from above. Here we have different employee types
+以上面的员工为例。这里我们有不同的员工类型
 
-```php
-interface Employee
-{
-    public function __construct(string $name, float $salary);
-    public function getName(): string;
-    public function setSalary(float $salary);
-    public function getSalary(): float;
-    public function getRoles(): array;
+```java
+public interface Employee {
+    String getName();
+    void setSalary(float salary);
+    float getSalary();
+    String[] getRoles();
 }
 
-class Developer implements Employee
-{
-    protected $salary;
-    protected $name;
-    protected $roles;
-    
-    public function __construct(string $name, float $salary)
-    {
-        $this->name = $name;
-        $this->salary = $salary;
+public class Developer implements Employee{
+    protected float salary;
+    protected String name;
+    protected String[] roles;
+
+    public Developer(float salary, String name) {
+        this.salary = salary;
+        this.name = name;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
+    @Override
+    public String getName() {
+        return name;
     }
 
-    public function setSalary(float $salary)
-    {
-        $this->salary = $salary;
+    @Override
+    public void setSalary(float salary) {
+        this.salary = salary;
     }
 
-    public function getSalary(): float
-    {
-        return $this->salary;
+    @Override
+    public float getSalary() {
+        return salary;
     }
 
-    public function getRoles(): array
-    {
-        return $this->roles;
+    @Override
+    public String[] getRoles() {
+        return new String[0];
     }
 }
 
-class Designer implements Employee
-{
-    protected $salary;
-    protected $name;
-    protected $roles;
+public class Designer implements Employee{
+    protected float salary;
+    protected String name;
+    protected String[] roles;
 
-    public function __construct(string $name, float $salary)
-    {
-        $this->name = $name;
-        $this->salary = $salary;
+    public Designer(float salary, String name) {
+        this.salary = salary;
+        this.name = name;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
+    @Override
+    public String getName() {
+        return name;
     }
 
-    public function setSalary(float $salary)
-    {
-        $this->salary = $salary;
+    @Override
+    public void setSalary(float salary) {
+        this.salary = salary;
     }
 
-    public function getSalary(): float
-    {
-        return $this->salary;
+    @Override
+    public float getSalary() {
+        return salary;
     }
 
-    public function getRoles(): array
-    {
-        return $this->roles;
+    @Override
+    public String[] getRoles() {
+        return new String[0];
     }
 }
 ```
 
 Then we have an organization which consists of several different types of employees
 
-```php
-class Organization
-{
-    protected $employees;
+```java
+public class Organization {
+    protected List<Employee> employees = new ArrayList<>();
 
-    public function addEmployee(Employee $employee)
-    {
-        $this->employees[] = $employee;
+    public void addEmployee(Employee employee) {
+        employees.add(employee);
     }
-
-    public function getNetSalaries(): float
-    {
-        $netSalary = 0;
-
-        foreach ($this->employees as $employee) {
-            $netSalary += $employee->getSalary();
+    public float getNetSalaries() {
+        float netSalary = 0;
+        for (Employee e : employees) {
+            netSalary += e.getSalary();
         }
-
-        return $netSalary;
+        return netSalary;
     }
 }
 ```
 
 And then it can be used as
 
-```php
-// Prepare the employees
-$john = new Developer('John Doe', 12000);
-$jane = new Designer('Jane Doe', 15000);
+```java
+public class CompositeSample {
+    public static void main(String[] args) {
+        Employee john = new Developer(12000f, "John Doe");
+        Employee jane = new Designer(11000f, "Jone Doe");
 
-// Add them to organization
-$organization = new Organization();
-$organization->addEmployee($john);
-$organization->addEmployee($jane);
+        Organization organization = new Organization();
+        organization.addEmployee(john);
+        organization.addEmployee(jane);
 
-echo "Net salaries: " . $organization->getNetSalaries(); // Net Salaries: 27000
+        System.out.printf("Net salaries: %f",organization.getNetSalaries());
+    }
+}
 ```
 
 ☕ Decorator
